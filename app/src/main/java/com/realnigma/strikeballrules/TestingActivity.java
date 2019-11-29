@@ -1,12 +1,7 @@
 package com.realnigma.strikeballrules;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
-
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +15,10 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 public class TestingActivity extends AppCompatActivity {
 
@@ -56,6 +55,17 @@ public class TestingActivity extends AppCompatActivity {
     //Список проблемных тем вопроса при которых были даны неверные ответы
     private ArrayList<String> problemTopicList = new ArrayList<>();
 
+    //Загружается ли Activity после пересоздания
+    private boolean isStateRestored;
+
+    //Выбранный radioButton. Для восстановления выбранного варианта ответа при пересоздании Activity (например, автоповорот)
+    private int checkedRadioButtonId;
+
+    //Массив для размещения всех видов ответов
+    private ArrayList<String> answersArray = new ArrayList<>();
+
+    private ArrayList<String> savedAnswersArray = new ArrayList<>();
+
     //Класс описывающий вопрос
     static public class Question {
 
@@ -86,6 +96,21 @@ public class TestingActivity extends AppCompatActivity {
             }
 
             //При добавлении нового вопроса нужно изменить значение константы questionCount
+
+            /* questions[0].questionText = "В каких случаях попадание из стрелкового оружия не засчитывается?";
+            questions[0].questionTopic = "8. Игровое оружие, пункт 8.1.2";
+            questions[0].rightAnswers.add("При рикошете");
+            questions[0].rightAnswers.add("При попадании в оружие");
+            questions[0].wrongAnswers.add("При попадании хотя бы одного шара от игрока твоей же стороны");
+            questions[0].wrongAnswers.add("При попадании хотя бы одного шара от МАКЛАУДА");
+
+
+            questions[1].questionText = "Чьи требования во время игрового процесса должны выполняться всеми без исключения присутствующими лицами?";
+            questions[1].questionTopic = "2. Организатор игры, пункт 2.1";
+            questions[1].rightAnswers.add("Организатора");
+            questions[1].wrongAnswers.add("Бескомандника");
+            questions[1].wrongAnswers.add("Командира любой команды");
+            questions[1].wrongAnswers.add("Командира своей команды"); */
 
             questions[0].questionText = "Со скольки лет допускается участие в игре страйкбол?";
             questions[0].questionTopic = "1. Общие положения, пункт 1.2";
@@ -347,12 +372,13 @@ public class TestingActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_testing);
+
+
         //Запрещаем поворот экрана
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         //Получение имени пользователи из предыдущей активности
         Intent intent = getIntent();
-
 
         userName = intent.getStringExtra("Имя");
 
@@ -363,22 +389,60 @@ public class TestingActivity extends AppCompatActivity {
         //Инициализируем кнопку "Принять"
         acceptButton = findViewById(R.id.acceptButton);
 
+
         //Задаем вопрос и ответы
         questionList = new QuestionList();
         questionList.setQuestions();
 
-        //Формируем список IDs вопросов
-        for (int i = 0; i < questionsCount; i++)
-            randomOrderQuestions.add(i);
+            //Сохраненное состояние пустое - значит Activity создается в первый раз
+        if (savedInstanceState == null) {
 
-        //Распологаем в случайном порядке
-        Collections.shuffle(randomOrderQuestions);
+            //Формируем список IDs вопросов
+            for (int i = 0; i < questionsCount; i++){
+                randomOrderQuestions.add(i);
+            }
+            //Распологаем в случайном порядке
+            Collections.shuffle(randomOrderQuestions);
 
-        //Формируем первый вопрос
+            isStateRestored = false;
+            }
+        else {
+            result = savedInstanceState.getInt("result");
+            currentQuestion = savedInstanceState.getInt("currentQuestion");
+            currentQuestionRandom = savedInstanceState.getInt("currentQuestionRandom");
+            randomOrderQuestions = savedInstanceState.getIntegerArrayList("randomOrderQuestions");
+            savedAnswersArray = savedInstanceState.getStringArrayList("savedAnswersArray");
+            isStateRestored = true;
+            checkedRadioButtonId = savedInstanceState.getInt("checkedRadioButtonId");
+            problemTopicList = savedInstanceState.getStringArrayList("problemTopicList");
+            }
+
+       // isStateRestored = savedInstanceState.getBoolean("isStateRestored");
+
+            //Загружаем вопрос
         getQuestion();
+
 
     }
 
+    //Сохраняем дополнительные данные формы, чтобы они не терялись при автоповороте или сворачивании на длительное время
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putInt("result", result);
+        savedInstanceState.putInt("currentQuestion", currentQuestion);
+        savedInstanceState.putInt("currentQuestionRandom", currentQuestionRandom);
+        savedInstanceState.putIntegerArrayList("randomOrderQuestions", randomOrderQuestions);
+
+        savedInstanceState.putStringArrayList("savedAnswersArray", answersArray);
+
+        savedInstanceState.putStringArrayList("problemTopicList", problemTopicList);
+
+        savedInstanceState.putInt("checkedRadioButtonId", answersGroup.getCheckedRadioButtonId());
+
+
+
+        super.onSaveInstanceState(savedInstanceState);
+    }
 
     //Обработка нажания кнопки "Назад"
     @Override
@@ -434,27 +498,35 @@ public class TestingActivity extends AppCompatActivity {
         questionTextView = findViewById(R.id.questionText);
         questionTextView.setText(questionList.questions[currentQuestion].questionText);
 
+
+
+
+        answersArray.clear();
+
         //Число вариантов ответа
         int wrongAnswersNumber = questionList.questions[currentQuestion].wrongAnswers.size();
         int rightAnswersNumber = questionList.questions[currentQuestion].rightAnswers.size();
         int answersNumber = wrongAnswersNumber + rightAnswersNumber;
 
-        //Массивы элементамов RadioButton и CheckBox, которые будут добавляться динамически
-        RadioButton[] radioButtons = new RadioButton[answersNumber];
-        CheckBox[] checkBoxes = new CheckBox[answersNumber];
+        //Формируем список вопрос в первый раз
+        if (isStateRestored == false) {
 
-        //Массив для размещения всех видов ответов
-        ArrayList<String> answersArray = new ArrayList<>();
+            //Пишем неправильные и правильные ответы в массив answersArray
+            for (int i = 0; i < wrongAnswersNumber; i++){
+                answersArray.add(questionList.questions[currentQuestion].wrongAnswers.get(i));
+            }
 
-        //Пишем неправильные и правильные ответы в массив answersArray
-        for (int i = 0; i < wrongAnswersNumber; i++)
-            answersArray.add(questionList.questions[currentQuestion].wrongAnswers.get(i));
+            for (int i = 0; i < rightAnswersNumber; i++){
+                answersArray.add(questionList.questions[currentQuestion].rightAnswers.get(i));
+            }
 
-        for (int i = 0; i < rightAnswersNumber; i++)
-            answersArray.add(questionList.questions[currentQuestion].rightAnswers.get(i));
+            //Перемешиваем порядок вариантов ответов
+            Collections.shuffle(answersArray);
+        }
+        if (isStateRestored == true)   {
+            answersArray = savedAnswersArray;
+        }
 
-        //Перемешиваем порядок вариантов ответов
-        Collections.shuffle(answersArray);
 
         //Добавляем варианты ответов из answersArray в answersGroup
 
@@ -462,8 +534,12 @@ public class TestingActivity extends AppCompatActivity {
         RadioGroup.LayoutParams params = new RadioGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.setMargins(0,8,0,8);
 
+        //Массивы элементамов RadioButton и CheckBox, которые будут добавляться динамически
+        RadioButton[] radioButtons = new RadioButton[answersNumber];
+        CheckBox[] checkBoxes = new CheckBox[answersNumber];
+
         //В засимости от количества правильных ответов размещаем либо CheckBoxes, либо RadioButtons
-        if (questionList.questions[currentQuestion].rightAnswers.size() > 1){
+        if (questionList.questions[currentQuestion].rightAnswers.size() > 1) {
             for (int i = 0; i < answersNumber; i++){
                 //Объявляем все элементы массива
                 checkBoxes[i] = new CheckBox(this);
@@ -485,7 +561,9 @@ public class TestingActivity extends AppCompatActivity {
                 //Задаем текст вопроса
                 radioButtons[i].setText(answersArray.get(i));
 
-                //Отступы сверху и сниху
+                radioButtons[i].setId(i);
+
+                //Отступы сверху и снизу
                 radioButtons[i].setLayoutParams(params);
 
                 //Добавляем вариант ответа в answersGroup
@@ -493,16 +571,21 @@ public class TestingActivity extends AppCompatActivity {
             }
         }
 
+        //Восстанавливаем выбранный вариант ответа
+
+        if (isStateRestored == true)  { //TODO: Разобраться с сохранением выбранного ответа
+            answersGroup.check(checkedRadioButtonId);
+        }
+
         //Выводим номер вопроса
         nameTextView.setText("Вопрос: " + Integer.toString(currentQuestionRandom + 1) + " из " + questionsCount);
 
-
-        //Сброс выбора ответа, answersGroup.getCheckedRadioButtonId() будет сброшен и не будет создавать проблем
-        answersGroup.clearCheck();
     }
 
     //Проверяем правильность ответа
     public void checkResult(View view){
+        //Сброс значения переменной при смене вопроса
+        isStateRestored = false;
 
         //Варианты ответа RadioButton
 
@@ -581,6 +664,9 @@ public class TestingActivity extends AppCompatActivity {
             endTest();
         //Иначе следующий вопрос
         else getQuestion();
+
+        //Сброс выбора ответа, answersGroup.getCheckedRadioButtonId() будет сброшен и не будет создавать проблем
+        answersGroup.clearCheck();
 
         CardView card = findViewById(R.id.cardView);
 
