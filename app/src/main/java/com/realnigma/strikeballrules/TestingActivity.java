@@ -573,7 +573,7 @@ public class TestingActivity extends AppCompatActivity {
 
         //Восстанавливаем выбранный вариант ответа
 
-        if (isStateRestored == true)  { //TODO: Разобраться с сохранением выбранного ответа
+        if (isStateRestored == true)  {
             answersGroup.check(checkedRadioButtonId);
         }
 

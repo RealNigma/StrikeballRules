@@ -3,7 +3,7 @@
     <string name="action_settings">Настройки</string>
     <string name="accept_button">Далее</string>
     <string name="start_button">Начать тестирование</string>
-    <string name="name_hint">Введите имя</string>
+    <string name="name_hint">Введите Ваш позывной</string>
     <string name="start_title">Правила страйкбола</string>
     <string name="start_title2">г. Норильска</string>
     <string name="test_result_title">Итоги тестирования</string>
