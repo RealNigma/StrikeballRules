@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "215888213735",
+    "firebase_url": "https://strikeball-rules.firebaseio.com",
+    "project_id": "strikeball-rules",
+    "storage_bucket": "strikeball-rules.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:215888213735:android:c2f70e3ab7f9c503db5442",
+        "android_client_info": {
+          "package_name": "com.realnigma.strikeballrules"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "215888213735-vvvc5st79e9q3h7dlqftde4hm28aapa0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.realnigma.strikeballrules",
+            "certificate_hash": "33b2993c06e7856a2f882bb08ba64b67934fcf58"
+          }
+        },
+        {
+          "client_id": "215888213735-2ae28ja4h0n1hmg165a83ufdaontlaof.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_vT5IN0HTEYRI1ez-AxzFvj6ycsJfPts"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "215888213735-2ae28ja4h0n1hmg165a83ufdaontlaof.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
