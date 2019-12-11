@@ -62,6 +62,20 @@ public class MainActivity extends AppCompatActivity {
 
         //Старт активности с тестированием
         startActivity(intent);
+
+        // Write a message to the database
+       // FirebaseDatabase database = FirebaseDatabase.getInstance();
+
+        //DatabaseReference myRef = database.getReference();
+
+        //myRef.child("users").child("id").add
+
+
+
+
+
+
+
     }
 
 

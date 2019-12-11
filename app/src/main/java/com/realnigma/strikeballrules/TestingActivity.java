@@ -3,6 +3,7 @@ package com.realnigma.strikeballrules;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -13,14 +14,27 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 public class TestingActivity extends AppCompatActivity {
+
+    private static final String TAG = "TestingActivity";
 
     //Текстовые поля с информицей о вопросе и текстом вопроса
     private TextView nameTextView;
@@ -70,16 +84,16 @@ public class TestingActivity extends AppCompatActivity {
     static public class Question {
 
         //Текст вопроса
-        private String questionText;
+        public String questionText;
 
         //Тема вопроса
-        private String questionTopic;
+        public String questionTopic;
 
         //Массив правильных ответов
-        ArrayList<String> rightAnswers = new ArrayList<>();
+        public ArrayList<String> rightAnswers = new ArrayList<>();
 
         //Массив неправильных ответов
-        ArrayList<String> wrongAnswers = new ArrayList<>();
+        public ArrayList<String> wrongAnswers = new ArrayList<>();
     }
 
     //Массив объектов класса - Список вопросов
@@ -97,7 +111,7 @@ public class TestingActivity extends AppCompatActivity {
 
             //При добавлении нового вопроса нужно изменить значение константы questionCount
 
-            /* questions[0].questionText = "В каких случаях попадание из стрелкового оружия не засчитывается?";
+            /*questions[0].questionText = "В каких случаях попадание из стрелкового оружия не засчитывается?";
             questions[0].questionTopic = "8. Игровое оружие, пункт 8.1.2";
             questions[0].rightAnswers.add("При рикошете");
             questions[0].rightAnswers.add("При попадании в оружие");
@@ -110,7 +124,10 @@ public class TestingActivity extends AppCompatActivity {
             questions[1].rightAnswers.add("Организатора");
             questions[1].wrongAnswers.add("Бескомандника");
             questions[1].wrongAnswers.add("Командира любой команды");
-            questions[1].wrongAnswers.add("Командира своей команды"); */
+            questions[1].wrongAnswers.add("Командира своей команды");
+
+             */
+
 
             questions[0].questionText = "Со скольки лет допускается участие в игре страйкбол?";
             questions[0].questionTopic = "1. Общие положения, пункт 1.2";
@@ -361,7 +378,14 @@ public class TestingActivity extends AppCompatActivity {
             questions[33].wrongAnswers.add("Послать куда подальше");
 
 
+        }
 
+        private void initQuestions() {
+
+            //Обявляем экзепляр каждого элемента, чтобы избежать ошибки NullPointerException
+            for (int i = 0; i <= questionsCount - 1; i++) {
+                questions[i] = new Question();
+            }
         }
 
 
@@ -393,6 +417,7 @@ public class TestingActivity extends AppCompatActivity {
         //Задаем вопрос и ответы
         questionList = new QuestionList();
         questionList.setQuestions();
+        getCloudQuestions();
 
             //Сохраненное состояние пустое - значит Activity создается в первый раз
         if (savedInstanceState == null) {
@@ -509,7 +534,7 @@ public class TestingActivity extends AppCompatActivity {
         int answersNumber = wrongAnswersNumber + rightAnswersNumber;
 
         //Формируем список вопрос в первый раз
-        if (isStateRestored == false) {
+        if (!isStateRestored) {
 
             //Пишем неправильные и правильные ответы в массив answersArray
             for (int i = 0; i < wrongAnswersNumber; i++){
@@ -523,7 +548,7 @@ public class TestingActivity extends AppCompatActivity {
             //Перемешиваем порядок вариантов ответов
             Collections.shuffle(answersArray);
         }
-        if (isStateRestored == true)   {
+        if (isStateRestored)   {
             answersArray = savedAnswersArray;
         }
 
@@ -573,7 +598,7 @@ public class TestingActivity extends AppCompatActivity {
 
         //Восстанавливаем выбранный вариант ответа
 
-        if (isStateRestored == true)  {
+        if (isStateRestored)  {
             answersGroup.check(checkedRadioButtonId);
         }
 
@@ -678,6 +703,7 @@ public class TestingActivity extends AppCompatActivity {
 
     }
 
+
     //Окончание тестирования
     private void endTest() {
 
@@ -698,6 +724,9 @@ public class TestingActivity extends AppCompatActivity {
 
         intent.putExtra("Список проблемных тем", problemTopicList);
 
+        // Отправляем результаты тестирования в облако
+        sendCloud();
+
 
         //intent.putStringArrayListExtra("Имя", resultText.toString());
         startActivity(intent);
@@ -714,6 +743,102 @@ public class TestingActivity extends AppCompatActivity {
         //Animation anim = AnimationUtils.loadAnimation(this, android.R.anim.fade_out);
         //acceptButton.startAnimation(anim);
         //acceptButton.setVisibility(View.GONE);
+
+
+    }
+
+
+    private void getCloudQuestions (){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        //DocumentReference docRef = db.collection("questions").document("0");
+       // docRef.get();
+
+        final QuestionList cloudQuestions = new QuestionList();
+        cloudQuestions.initQuestions();
+
+       // QuestionList test = questionList;
+        //test.initQuestions();
+
+       db.collection("questions")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                               Question question = document.toObject(Question.class);
+                               cloudQuestions.questions[Integer.parseInt(document.getId())] = question;
+                               Log.d(TAG, document.getId() + " => " + document.getData());
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                        questionList = cloudQuestions;
+                        //String test = cloudQuestions.questions[0].questionText;
+                    }
+                });
+
+        /*final Question question = new Question();
+            DocumentReference docRef = db.collection("questions").document(Integer.toString(1));
+
+            docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    //question = documentSnapshot.toObject(Question.class);
+                }
+
+            }*/
+    }
+
+
+
+
+
+    private void sendQuestions(){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        for (int i = 0; i <= questionsCount-1; i++) {
+            Map<String, Object> question = new HashMap<>();
+            question.put("questionText", questionList.questions[i].questionText);
+            question.put("questionTopic", questionList.questions[i].questionTopic);
+            question.put("rightAnswers", questionList.questions[i].rightAnswers);
+            question.put("wrongAnswers", questionList.questions[i].wrongAnswers);
+
+            db.collection("questions").document(String.valueOf(i)).set(question);
+        }
+    }
+
+    private void sendCloud() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        //Date time = Calendar.getInstance().getTime();
+
+        //DateFormat df = new DateFormat.getDateInstance();
+        //String formattedDate = df.format(time);
+
+        // Create a new user with a first, middle, and last name
+        Map<String, Object> user = new HashMap<>();
+        user.put("result", result);
+        user.put("date", new Timestamp(new Date()));
+        user.put("problemTopicList" , problemTopicList);
+
+        db.collection("users").document(userName).set(user);
+        sendQuestions();
+
+        /*db.collection("users")
+                .add(user)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        // Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Log.w(TAG, "Error adding document", e);
+                    }
+                });*/
     }
 
 

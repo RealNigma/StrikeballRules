@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "215888213735-tp6bm67db9s1k7h6k8rsejhf5p4e8ppf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.realnigma.strikeballrules",
+            "certificate_hash": "7e71c4dece2be409b1157492d9c69f81105f5b40"
+          }
+        },
+        {
           "client_id": "215888213735-vvvc5st79e9q3h7dlqftde4hm28aapa0.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
