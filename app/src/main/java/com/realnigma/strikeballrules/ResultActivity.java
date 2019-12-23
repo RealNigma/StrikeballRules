@@ -22,9 +22,6 @@ public class ResultActivity extends AppCompatActivity {
 
     private String userName;
 
-    //Список проблемных тем вопроса при которых были даны неверные ответы
-    private ArrayList<String> problemTopicList = new ArrayList<>();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,7 +41,8 @@ public class ResultActivity extends AppCompatActivity {
 
 
         //Список разделов для повторения
-        problemTopicList = intent.getStringArrayListExtra("Список проблемных тем");
+        //Список проблемных тем вопроса при которых были даны неверные ответы
+        ArrayList<String> problemTopicList = intent.getStringArrayListExtra("Список проблемных тем");
 
         //Получаем результат и количество вопросов
         int result, questionsCount;
@@ -86,7 +84,8 @@ public class ResultActivity extends AppCompatActivity {
 
         //Количество вопросов из Общего количества
         progressText = findViewById(R.id.progressText);
-        progressText.setText(result + " из " + questionsCount);
+        progressText.setText(getString(R.string.result, result, questionsCount));
+        //progressText.setText(result + " из " + questionsCount);
 
         //Общий текст результатов
         resultText = findViewById(R.id.resultText);

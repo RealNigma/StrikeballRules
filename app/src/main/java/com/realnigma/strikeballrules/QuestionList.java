@@ -22,32 +22,60 @@ public class QuestionList {
 
     //Получить текст вопроса
     String getQuestionText() {
-        return questions.get(currentQuestion).questionText;
+        if (questions.size() > 0) {
+            return questions.get(currentQuestion).questionText;
+        }
+        else return null;
+    }
+
+    //Список вопросов пуст
+    boolean isEmpty(){
+        boolean result = false;
+        if (questions.size() == 0) {
+            result = true;
+        }
+        return result;
     }
 
     //Получить тему вопроса
     String getQuestionTopic() {
-        return questions.get(currentQuestion).questionTopic;
+        if (questions.size() > 0) {
+            return questions.get(currentQuestion).questionTopic;
+        }
+        else return null;
     }
 
     //Получить число правильных ответов
     int getRightAnswersNum(){
-        return questions.get(currentQuestion).rightAnswers.size();
+        if (questions.size() > 0){
+            return questions.get(currentQuestion).rightAnswers.size();
+        }
+        else return 0;
+
     }
 
     //Получить список правильных ответов
     ArrayList<String> getRightAnswers(){
-        return questions.get(currentQuestion).rightAnswers;
+        if (questions.size() > 0) {
+            return questions.get(currentQuestion).rightAnswers;
+        }
+        else return null;
     }
 
     //Получить список неправильных ответов
     ArrayList<String> getWrongAnswers(){
-        return questions.get(currentQuestion).wrongAnswers;
+        if (questions.size() > 0) {
+            return questions.get(currentQuestion).wrongAnswers;
+        }
+        else return null;
     }
 
     //Получить число неправильных ответов
     int getWrongAnswersNum(){
-        return questions.get(currentQuestion).wrongAnswers.size();
+        if (questions.size() > 0) {
+            return questions.get(currentQuestion).wrongAnswers.size();
+        }
+        else return 0;
     }
 
     //Получить номер текущего вопроса
@@ -78,7 +106,7 @@ public class QuestionList {
     //Формируем вопросы и ответы локально
     public void setOfflineQuestions(){
 
-        //При добавлении нового вопроса нужно изменить значение questionsCount
+        //При добавлении нового вопроса нужно изменить значение questionsCount TODO: Сделать 34 оффлайн вопроса и подумать как сделать это более изящно.
 
         Question question = new Question();
 

@@ -10,4 +10,7 @@
     <string name="apply_button_text">Далее</string>
     <string name="start_over_button_text">Сначала</string>
     <string name="from_text"> вопроов из </string>
+    <string name="question_from">Вопрос: %d из %d</string>
+    <string name="result">%d из %d</string>
+
 </resources>

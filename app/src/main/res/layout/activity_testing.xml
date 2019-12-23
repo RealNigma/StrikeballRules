@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
     tools:context=".TestingActivity">
 
     <androidx.cardview.widget.CardView
@@ -47,8 +48,7 @@
                     android:layout_marginRight="8sp"
                     android:textAllCaps="false"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                    android:textSize="18sp"
-                    tools:text="Засчитываются ли попадание поражающего элемента имитации гранаты в любую часть тела рикошетом?" />
+                    android:textSize="18sp" />
 
                 <View
                     android:id="@+id/divider"
@@ -75,12 +75,14 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginRight="16dp"
                     android:layout_marginBottom="16dp"
+                    android:animateLayoutChanges="true"
                     android:background="@color/colorPrimary"
                     android:onClick="checkResult"
                     android:paddingLeft="16dp"
                     android:paddingRight="16dp"
                     android:text="@string/accept_button"
-                    android:textColor="@android:color/white" />
+                    android:textColor="@android:color/white"
+                    android:visibility="invisible" />
 
             </LinearLayout>
         </ScrollView>

@@ -18,9 +18,16 @@ import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -31,6 +38,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
@@ -102,9 +110,11 @@ public class TestingActivity extends AppCompatActivity {
         questionList = new QuestionList();
         //Инициализируем вопросы
         //Заранее созданный список вопрос на случай отстуствия интернета
-        questionList.setOfflineQuestions();
+        //questionList.setOfflineQuestions();
 
         //sendQuestions();
+
+        getCloudQuestions();
 
         if (questionList.getQuestionsCount() == 1){
             acceptButton.setText("Закончить тестирование");
@@ -137,7 +147,7 @@ public class TestingActivity extends AppCompatActivity {
        // isStateRestored = savedInstanceState.getBoolean("isStateRestored");
 
             //Загружаем вопрос
-        getQuestion();
+        //getQuestion();
 
 
     }
@@ -296,12 +306,19 @@ public class TestingActivity extends AppCompatActivity {
 
         //Выводим номер вопроса
         int num = questionList.getCurrentQuestionNum();
-        nameTextView.setText("Вопрос: " + Integer.toString(num + 1) + " из " + questionList.getQuestionsCount());
+        nameTextView.setText(getString(R.string.question_from, num+1, questionList.getQuestionsCount()));
+        //nameTextView.setText("Вопрос: " + Integer.toString(num + 1) + " из " + questionList.getQuestionsCount());
 
     }
 
     //Проверяем правильность ответа
     public void checkResult(View view){
+
+        //Если список вопросов пуст, то ничего не происходит
+        if (questionList.isEmpty()){
+            return;
+        }
+
         //Сброс значения переменной при смене вопроса
         isStateRestored = false;
 
@@ -371,17 +388,13 @@ public class TestingActivity extends AppCompatActivity {
                 problemTopicList.add(questionList.getQuestionTopic());
         }
 
-
         //Следующий вопрос
         questionList.nextQuestion();
-
-
 
         //Смена названия кнопки перед последним вопросом
         if (questionList.getCurrentQuestionNum() + 1 == questionList.getQuestionsCount()){
             acceptButton.setText("Закончить тестирование");
         }
-
 
         //Если вопросы закончились - окончание тестирования
         int currentQuestionNum = questionList.getCurrentQuestionNum();
@@ -390,18 +403,18 @@ public class TestingActivity extends AppCompatActivity {
             endTest();
         }
         //Иначе следующий вопрос
-        else getQuestion();
+        else {
+            getQuestion();
 
-        //Сброс выбора ответа, answersGroup.getCheckedRadioButtonId() будет сброшен и не будет создавать проблем
-        answersGroup.clearCheck();
+            //Сброс выбора ответа, answersGroup.getCheckedRadioButtonId() будет сброшен и не будет создавать проблем
+            answersGroup.clearCheck();
 
-        CardView card = findViewById(R.id.cardView);
-
-        //Анимация смены вопроса
-
-        Animation anim = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left); //R.anim.down_to_up;
-        anim.setDuration(200);
-        card.startAnimation(anim);
+            //Анимация смены вопроса
+            CardView card = findViewById(R.id.cardView);
+            Animation anim = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left); //R.anim.down_to_up;
+            anim.setDuration(200);
+            card.startAnimation(anim);
+        }
 
     }
 
@@ -414,7 +427,6 @@ public class TestingActivity extends AppCompatActivity {
 
         //Текст с итогами тестирования
         //String resultText;
-
 
         //Вызываем активити с результатом и передаем текст результата
 
@@ -450,11 +462,6 @@ public class TestingActivity extends AppCompatActivity {
 
 
     private void getCloudQuestions (){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        //DocumentReference docRef = db.collection("questions").document("0");
-       // docRef.get();
-
-        final QuestionList cloudQuestions = new QuestionList();
         /*Task<Integer> task = getCount(db.collection("questions_short"));
 
         task.addOnSuccessListener(new OnSuccessListener<Integer>() {
@@ -465,40 +472,119 @@ public class TestingActivity extends AppCompatActivity {
             }
         }); */
 
-       db.collection("questions")
+       /*readData(new FirestoreCallback() {
+            @Override
+            public void onCallback(QuestionList list) {
+                getQuestion();
+            }
+        });*/
+       addSnapshotListener();
+        //readRDData();
+        acceptButton.setVisibility(View.VISIBLE);
+       //readSlow();
+
+    }
+
+    private void readSlow(){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("questions")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-
-
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                               Question question = document.toObject(Question.class);
-                               cloudQuestions.addQuestion(question);
-                               Log.d(TAG, document.getId() + " => " + document.getData());
+                                Question question = document.toObject(Question.class);
+                                questionList.addQuestion(question);
+                                Log.d(TAG, document.getId() + " => " + document.getData());
                             }
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }
-                        questionList = cloudQuestions;
-                        //questionList.setQuestionsCount(cloudQuestions.getQuestionsCount());
-                        //questionList.questions = cloudQuestions.questions;
-
                         getQuestion();
                     }
                 });
+    }
 
-        /*final Question question = new Question();
-            DocumentReference docRef = db.collection("questions").document(Integer.toString(1));
+    private void readRDData(){
+        DatabaseReference mDatabase;
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference questionsRef = mDatabase.child("questions_short");
 
-            docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    //question = documentSnapshot.toObject(Question.class);
-                }
+        ValueEventListener questionListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                    Question question = dataSnapshot.getValue(Question.class);
+                    questionList.addQuestion(question);
+                    getQuestion();
+            }
 
-            }*/
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+                Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
+                // ...
+            }
+        };
+        questionsRef.addValueEventListener(questionListener);
+
+    }
+
+    private void addSnapshotListener(){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("questions")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Log.w(TAG, "Listen failed.", e);
+                            return;
+                        }
+
+                        for (QueryDocumentSnapshot doc : value) {
+                            Question question = doc.toObject(Question.class);
+                            questionList.addQuestion(question);
+                        }
+                        //Загружаем offline вопросы
+                        if (questionList.isEmpty()){
+                            questionList.setOfflineQuestions();
+                        }
+                        getQuestion();
+                    }
+                        //Log.d(TAG,"Current cites in CA: ");
+                });
+}
+
+    private void readData(final FirestoreCallback firestoreCallback){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("questions_short")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Question question = document.toObject(Question.class);
+                                questionList.addQuestion(question);
+                                //Log.d(TAG, document.getId() + " => " + document.getData());
+                            }
+                            firestoreCallback.onCallback(questionList);
+                        } else {
+                            //Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                        //questionList = cloudQuestions;
+                        //questionList.setQuestionsCount(cloudQuestions.getQuestionsCount());
+                        //questionList.questions = cloudQuestions.questions;
+
+
+                    }
+                });
+    }
+
+    private interface FirestoreCallback {
+        void onCallback(QuestionList list);
     }
 
 //Получаем количество вопросов
