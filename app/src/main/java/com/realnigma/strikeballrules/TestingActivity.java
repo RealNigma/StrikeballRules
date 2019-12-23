@@ -14,17 +14,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -37,7 +27,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -127,10 +116,10 @@ public class TestingActivity extends AppCompatActivity {
            /* //Формируем список IDs вопросов
             for (int i = 0; i < questionList.getQuestionsCount(); i++){
                 //randomOrderQuestions.add(i);
-            }
+            }*/
             //Распологаем в случайном порядке
-            Collections.shuffle(randomOrderQuestions);*/
             questionList.shuffleQuestions();
+            //Collections.shuffle(randomOrderQuestions);
             isStateRestored = false;
             }
         else {
@@ -266,6 +255,7 @@ public class TestingActivity extends AppCompatActivity {
         CheckBox[] checkBoxes = new CheckBox[answersNumber];
 
         //В засимости от количества правильных ответов размещаем либо CheckBoxes, либо RadioButtons
+
         if (questionList.getRightAnswersNum() > 1) {
             for (int i = 0; i < answersNumber; i++){
                 //Объявляем все элементы массива
@@ -299,7 +289,6 @@ public class TestingActivity extends AppCompatActivity {
         }
 
         //Восстанавливаем выбранный вариант ответа
-
         if (isStateRestored)  {
             answersGroup.check(checkedRadioButtonId);
         }
@@ -307,8 +296,6 @@ public class TestingActivity extends AppCompatActivity {
         //Выводим номер вопроса
         int num = questionList.getCurrentQuestionNum();
         nameTextView.setText(getString(R.string.question_from, num+1, questionList.getQuestionsCount()));
-        //nameTextView.setText("Вопрос: " + Integer.toString(num + 1) + " из " + questionList.getQuestionsCount());
-
     }
 
     //Проверяем правильность ответа
@@ -485,7 +472,8 @@ public class TestingActivity extends AppCompatActivity {
 
     }
 
-    private void readSlow(){
+    //Полученные данных методом get()
+    /*private void readSlow(){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         db.collection("questions")
@@ -505,9 +493,10 @@ public class TestingActivity extends AppCompatActivity {
                         getQuestion();
                     }
                 });
-    }
+    }*/
 
-    private void readRDData(){
+    //Получение данных из RealTimeDatabase
+    /* private void readRDData(){
         DatabaseReference mDatabase;
         mDatabase = FirebaseDatabase.getInstance().getReference();
         DatabaseReference questionsRef = mDatabase.child("questions_short");
@@ -529,35 +518,10 @@ public class TestingActivity extends AppCompatActivity {
         };
         questionsRef.addValueEventListener(questionListener);
 
-    }
+    }*/
 
-    private void addSnapshotListener(){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("questions")
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot value,
-                                        @Nullable FirebaseFirestoreException e) {
-                        if (e != null) {
-                            Log.w(TAG, "Listen failed.", e);
-                            return;
-                        }
-
-                        for (QueryDocumentSnapshot doc : value) {
-                            Question question = doc.toObject(Question.class);
-                            questionList.addQuestion(question);
-                        }
-                        //Загружаем offline вопросы
-                        if (questionList.isEmpty()){
-                            questionList.setOfflineQuestions();
-                        }
-                        getQuestion();
-                    }
-                        //Log.d(TAG,"Current cites in CA: ");
-                });
-}
-
-    private void readData(final FirestoreCallback firestoreCallback){
+    //Полученные данных через метод get() c использованием Callback
+   /* private void readData(final FirestoreCallback firestoreCallback){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("questions_short")
                 .get()
@@ -585,10 +549,10 @@ public class TestingActivity extends AppCompatActivity {
 
     private interface FirestoreCallback {
         void onCallback(QuestionList list);
-    }
+    } */
 
-//Получаем количество вопросов
-    private Task<Integer> getCount(final CollectionReference ref) {
+    //Считаем количество записей в коллекции
+   /* private Task<Integer> getCount(final CollectionReference ref) {
         return ref.get()
                 .continueWith(new Continuation<QuerySnapshot, Integer>() {
                     @Override
@@ -600,10 +564,10 @@ public class TestingActivity extends AppCompatActivity {
                         return count;
                     }
                 });
-    }
+    }*/
 
-
-    private void sendQuestions(){
+    //Отправляем вопросы в облако
+    /*private void sendQuestions(){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         for (int i = 0; i <= (questionList.getQuestionsCount()-1); i++) {
@@ -615,7 +579,37 @@ public class TestingActivity extends AppCompatActivity {
 
             db.collection("questions_short").document(String.valueOf(i)).set(question);
         }
-    }
+    }*/
+
+    //Загружаем вопросы из облака
+    private void addSnapshotListener(){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("questions")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Log.w(TAG, "Listen failed.", e);
+                            return;
+                        }
+
+                        if (value != null) {
+                            for (QueryDocumentSnapshot doc : value) {
+                                Question question = doc.toObject(Question.class);
+                                questionList.addQuestion(question);
+                            }
+                        }
+                        //Загружаем offline вопросы
+                        if (questionList.isEmpty()){
+                            questionList.setOfflineQuestions();
+                        }
+                        questionList.shuffleQuestions();
+                        getQuestion();
+                    }
+                        //Log.d(TAG,"Current cites in CA: ");
+                });
+}
 
     private void sendCloud() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();

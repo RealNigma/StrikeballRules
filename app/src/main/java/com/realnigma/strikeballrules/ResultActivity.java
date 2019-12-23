@@ -16,12 +16,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class ResultActivity extends AppCompatActivity {
 
-    private TextView progressText, resultText;
-
-    private ProgressBar progressBar;
-
-    private String userName;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,7 +31,7 @@ public class ResultActivity extends AppCompatActivity {
         Intent intent = getIntent();
 
         //Имя пользователя
-        userName = intent.getStringExtra("Имя");
+        String userName = intent.getStringExtra("Имя");
 
 
         //Список разделов для повторения
@@ -61,9 +55,13 @@ public class ResultActivity extends AppCompatActivity {
 
         //Удаляем дубликаты в списке проблемных тем, используя множества
         //TreeSet позволяет создать сортированный список
-        SortedSet<String> set = new TreeSet<>(problemTopicList);
-        problemTopicList.clear();
-        problemTopicList.addAll(set);
+        SortedSet<String> set = null;
+        if (problemTopicList != null) {
+            set = new TreeSet<>(problemTopicList);
+            problemTopicList.clear();
+            problemTopicList.addAll(set);
+        }
+
 
 
         //Если есть неправильные ответы - выводим список тем для повторения
@@ -79,16 +77,16 @@ public class ResultActivity extends AppCompatActivity {
             resultSB.append("\n" + "\n" + "Поздравляю! Вы ответили на все вопросы правильно" + "\n");
 
         //Выставляем прогресс взяв процент правильных ответов
-        progressBar = findViewById(R.id.progressBar2);
+        ProgressBar progressBar = findViewById(R.id.progressBar2);
         progressBar.setProgress(percent);
 
         //Количество вопросов из Общего количества
-        progressText = findViewById(R.id.progressText);
+        TextView progressText = findViewById(R.id.progressText);
         progressText.setText(getString(R.string.result, result, questionsCount));
         //progressText.setText(result + " из " + questionsCount);
 
         //Общий текст результатов
-        resultText = findViewById(R.id.resultText);
+        TextView resultText = findViewById(R.id.resultText);
         resultText.setText(resultSB.toString());
 
         //Анимируем ProgressBar
