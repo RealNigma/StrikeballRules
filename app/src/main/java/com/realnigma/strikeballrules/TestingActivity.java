@@ -10,6 +10,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -63,6 +64,9 @@ public class TestingActivity extends AppCompatActivity {
     //Имя тестируемого
     private String userName;
 
+    //id авторизованного пользователя
+    private String userId;
+
     //Список проблемных тем вопроса при которых были даны неверные ответы
     private ArrayList<String> problemTopicList = new ArrayList<>();
 
@@ -94,6 +98,8 @@ public class TestingActivity extends AppCompatActivity {
         //nameTextView.setText("Вопрос: "+ currentQuestionRandom + 1 + " из " + questionsCount);
         //Инициализируем кнопку "Принять"
         acceptButton = findViewById(R.id.acceptButton);
+
+        userId = intent.getStringExtra("userId");
 
         //Задаем вопрос и ответы
         questionList = new QuestionList();
@@ -584,7 +590,7 @@ public class TestingActivity extends AppCompatActivity {
     //Загружаем вопросы из облака
     private void addSnapshotListener(){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("questions")
+        db.collection("questions_short")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value,
@@ -606,6 +612,15 @@ public class TestingActivity extends AppCompatActivity {
                         }
                         questionList.shuffleQuestions();
                         getQuestion();
+
+                        ProgressBar progressBar = findViewById(R.id.progressBar);
+                        progressBar.setVisibility(View.GONE);
+
+                        TextView questionText = findViewById(R.id.questionText);
+                        questionText.setVisibility(View.VISIBLE);
+
+                        View divider = findViewById(R.id.divider);
+                        divider.setVisibility(View.VISIBLE);
                     }
                         //Log.d(TAG,"Current cites in CA: ");
                 });
@@ -621,11 +636,12 @@ public class TestingActivity extends AppCompatActivity {
 
         // Create a new user with a first, middle, and last name
         Map<String, Object> user = new HashMap<>();
+        user.put("userName", userName);
         user.put("result", result);
         user.put("date", new Timestamp(new Date()));
         user.put("problemTopicList" , problemTopicList);
 
-        db.collection("users").document(userName).set(user);
+        db.collection("users").document(userId).set(user);
        // sendQuestions();
 
         /*db.collection("users")

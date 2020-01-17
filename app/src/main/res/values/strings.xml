@@ -2,6 +2,7 @@
     <string name="app_name">Правила страйкбола</string>
     <string name="action_settings">Настройки</string>
     <string name="accept_button">Далее</string>
+    <string name="logout_button">Logout</string>
     <string name="start_button">Начать тестирование</string>
     <string name="name_hint">Введите Ваш позывной</string>
     <string name="start_title">Правила страйкбола</string>

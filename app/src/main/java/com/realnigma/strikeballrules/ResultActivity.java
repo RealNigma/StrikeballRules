@@ -55,7 +55,7 @@ public class ResultActivity extends AppCompatActivity {
 
         //Удаляем дубликаты в списке проблемных тем, используя множества
         //TreeSet позволяет создать сортированный список
-        SortedSet<String> set = null;
+        SortedSet<String> set;
         if (problemTopicList != null) {
             set = new TreeSet<>(problemTopicList);
             problemTopicList.clear();
