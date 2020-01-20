@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -88,6 +91,30 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //Добавляем меню
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    //Действие при выборе элемента меню
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.logout:
+                signOut();
+                return true;
+            case R.id.action_settings:
+                //startSettings();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -101,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
+    //Анонимная авторизация
     private void signInAnonymously() {
         //showProgressBar();
         // [START signin_anonymously]
@@ -131,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    //Метод вызывающий snackbar с определенным сообщением
     public void snackbarMessage(String message){
                         CoordinatorLayout coordinatorLayout = findViewById(R.id.CoordinatorLayout);
                 Snackbar snackbar = Snackbar
@@ -138,20 +167,20 @@ public class MainActivity extends AppCompatActivity {
                 snackbar.show();
     }
 
+    //Авторизуемся используя FirebaseUI
     public void createSignInIntent() {
-        // [START auth_fui_create_intent]
         // Choose authentication providers
         List<AuthUI.IdpConfig> providers = Arrays.asList(
                 new AuthUI.IdpConfig.GoogleBuilder().build());
 
         // Create and launch sign-in intent
+        // В списке оставлена только Google-авторизация
         startActivityForResult(
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
                         .setAvailableProviders(providers)
                         .build(),
                 RC_SIGN_IN);
-        // [END auth_fui_create_intent]
     }
 
     @Override
@@ -174,6 +203,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //Авториция на Firebase используя Google-аккаунт
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         //Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
 
@@ -221,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
     } */
 
     //Выход из учетной записи
-    public void signOut(View view) {
+    public void signOut() {
         if (userId == null) {
             return;
         }
