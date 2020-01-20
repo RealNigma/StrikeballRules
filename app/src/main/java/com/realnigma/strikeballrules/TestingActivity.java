@@ -590,7 +590,7 @@ public class TestingActivity extends AppCompatActivity {
     //Загружаем вопросы из облака
     private void addSnapshotListener(){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("questions_short")
+        db.collection("questions")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value,

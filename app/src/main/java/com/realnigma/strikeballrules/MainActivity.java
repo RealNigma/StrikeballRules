@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.logout:
-                signOut();
+               //signOut(view);
                 return true;
             case R.id.action_settings:
                 //startSettings();
@@ -251,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
     } */
 
     //Выход из учетной записи
-    public void signOut() {
+    public void signOut(View view) {
         if (userId == null) {
             return;
         }
