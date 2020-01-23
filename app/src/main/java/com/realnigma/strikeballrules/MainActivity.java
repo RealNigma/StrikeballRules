@@ -10,7 +10,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -20,18 +19,16 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-
-import java.util.Arrays;
-import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 
@@ -65,6 +62,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         //Запрещаем поворот экрана
         //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        //Задаем нужный стиль текста у CollapsingToolbar (Белый вместо черного)
+        CollapsingToolbarLayout mCollapsingToolbarLayout = findViewById(R.id.collapsingToolbarLayout);
+        mCollapsingToolbarLayout.setTitle(getTitle());
+        mCollapsingToolbarLayout.setExpandedTitleTextAppearance(R.style.ExpandedAppBar);
+        mCollapsingToolbarLayout.setCollapsedTitleTextAppearance(R.style.CollapsedAppBar);
+
+        Toolbar mTopToolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(mTopToolbar);
 
         //Поле ввода имени
         nameEditText = findViewById(R.id.nameText);
@@ -105,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.logout:
-               //signOut(view);
+               signOut();
                 return true;
             case R.id.action_settings:
                 //startSettings();
@@ -119,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+        //FirebaseUser currentUser = mAuth.getCurrentUser();
         //updateUI(currentUser);
     }
 
@@ -129,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Анонимная авторизация
-    private void signInAnonymously() {
+   /* private void signInAnonymously() {
         //showProgressBar();
         // [START signin_anonymously]
         mAuth.signInAnonymously()
@@ -156,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
         // [END signin_anonymously]
-    }
+    }*/
 
 
     //Метод вызывающий snackbar с определенным сообщением
@@ -168,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Авторизуемся используя FirebaseUI
-    public void createSignInIntent() {
+    /*public void createSignInIntent() {
         // Choose authentication providers
         List<AuthUI.IdpConfig> providers = Arrays.asList(
                 new AuthUI.IdpConfig.GoogleBuilder().build());
@@ -181,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
                         .setAvailableProviders(providers)
                         .build(),
                 RC_SIGN_IN);
-    }
+    }*/
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -193,7 +199,9 @@ public class MainActivity extends AppCompatActivity {
             try {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = task.getResult(ApiException.class);
-                firebaseAuthWithGoogle(account);
+                if (account != null) {
+                    firebaseAuthWithGoogle(account);
+                }
 
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
@@ -215,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
+                            //FirebaseUser user = mAuth.getCurrentUser();
                             userId = mAuth.getUid();
                             //updateUI(user);
                         } else {
@@ -251,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
     } */
 
     //Выход из учетной записи
-    public void signOut(View view) {
+    public void signOut() {
         if (userId == null) {
             return;
         }
