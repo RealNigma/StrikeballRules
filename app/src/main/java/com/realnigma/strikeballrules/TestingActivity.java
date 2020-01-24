@@ -1,7 +1,9 @@
 package com.realnigma.strikeballrules;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -302,7 +304,21 @@ public class TestingActivity extends AppCompatActivity {
         //Выводим номер вопроса
         int num = questionList.getCurrentQuestionNum();
         nameTextView.setText(getString(R.string.question_from, num+1, questionList.getQuestionsCount()));
+
+
+        //Инициализируем настройки
+        String APP_PREFERENCES = "settings";
+        SharedPreferences mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+        //Подсказка о нескольких вариантах ответа будет показываться всего один раз
+        if (mSettings.getBoolean("APP_PREFERENCES_HINT_MULTIPLE",true) && questionList.getRightAnswersNum() > 1) {
+            CardView hindCard = findViewById(R.id.hintCardView);
+            hindCard.setVisibility(View.VISIBLE);
+            SharedPreferences.Editor editor = mSettings.edit();
+            editor.putBoolean("APP_PREFERENCES_HINT_MULTIPLE", false);
+            editor.apply();
+        }
     }
+
 
     //Проверяем правильность ответа
     public void checkResult(View view){
@@ -316,6 +332,7 @@ public class TestingActivity extends AppCompatActivity {
         isStateRestored = false;
 
         //Варианты ответа RadioButton
+
 
         //Если один из RadioButtons выбран
         if (answersGroup.getCheckedRadioButtonId() != -1
@@ -409,6 +426,12 @@ public class TestingActivity extends AppCompatActivity {
             card.startAnimation(anim);
         }
 
+    }
+
+    //Скрыть карточку с подсказкой
+    public void dismissCardHint(View view){
+        CardView hindCard = findViewById(R.id.hintCardView);
+        hindCard.setVisibility(View.GONE);
     }
 
 
