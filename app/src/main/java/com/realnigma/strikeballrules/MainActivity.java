@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -12,19 +11,17 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.ApiException;
+import com.firebase.ui.auth.IdpResponse;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.GoogleAuthProvider;
+
+import java.util.Arrays;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -52,9 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 123;
 
-
-    //private FirebaseAuth mAuth;
-    private GoogleSignInClient mGoogleSignInClient;
+    //private GoogleSignInClient mGoogleSignInClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,21 +76,25 @@ public class MainActivity extends AppCompatActivity {
             nameEditText.setText(mSettings.getString(APP_PREFERENCES_USERNAME,""));
         }
 
-        //createSignInIntent();
+        //Сохраненное состояние пустое - значит Activity создается в первый раз
+        if (savedInstanceState == null && userId == null) {
+            createSignInIntent();
+        }
         //signInAnonymously();
 
 
         // Configure Google Sign In
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        /*GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
-        googleSignIn();
+        googleSignIn();*/
 
     }
+
 
     //Добавляем меню
     @Override
@@ -129,10 +128,10 @@ public class MainActivity extends AppCompatActivity {
         //updateUI(currentUser);
     }
 
-    private void googleSignIn() {
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
-    }
+//    private void googleSignIn() {
+//        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+//        startActivityForResult(signInIntent, RC_SIGN_IN);
+//    }
 
     //Анонимная авторизация
    /* private void signInAnonymously() {
@@ -174,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Авторизуемся используя FirebaseUI
-    /*public void createSignInIntent() {
+    public void createSignInIntent() {
         // Choose authentication providers
         List<AuthUI.IdpConfig> providers = Arrays.asList(
                 new AuthUI.IdpConfig.GoogleBuilder().build());
@@ -187,9 +186,9 @@ public class MainActivity extends AppCompatActivity {
                         .setAvailableProviders(providers)
                         .build(),
                 RC_SIGN_IN);
-    }*/
+    }
 
-    @Override
+    /*@Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -209,10 +208,10 @@ public class MainActivity extends AppCompatActivity {
                 // ...
             }
         }
-    }
+    }*/
 
     //Авториция на Firebase используя Google-аккаунт
-    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
+    /*private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         //Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
@@ -236,9 +235,9 @@ public class MainActivity extends AppCompatActivity {
                         // ...
                     }
                 });
-    }
+    }*/
 
-    /* @Override
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -256,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         }
-    } */
+    }
 
     //Выход из учетной записи
     public void signOut() {
@@ -285,8 +284,8 @@ public class MainActivity extends AppCompatActivity {
             snackbar.setAction("Войти", new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                           //createSignInIntent();
-                            googleSignIn();
+                           createSignInIntent();
+                            //googleSignIn();
                         }
             });
             snackbar.show();

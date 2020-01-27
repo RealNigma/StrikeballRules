@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:contentScrim="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
 
             app:toolbarId="@+id/toolbar">
 
@@ -39,6 +39,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:visibility="visible"
+                app:layout_collapseMode="pin"
                 app:title="@string/start_title"
                 app:titleMarginEnd="16dp"
                 app:titleMarginStart="16dp" />

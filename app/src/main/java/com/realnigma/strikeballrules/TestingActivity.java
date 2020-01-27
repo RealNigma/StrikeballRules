@@ -23,6 +23,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,7 +62,7 @@ public class TestingActivity extends AppCompatActivity {
    // private  ArrayList<Integer> randomOrderQuestions = new ArrayList<>();
 
     //Результат
-    private int result = 0;
+    private int result;
 
     //Имя тестируемого
     private String userName;
@@ -83,6 +84,8 @@ public class TestingActivity extends AppCompatActivity {
 
     private ArrayList<String> savedAnswersArray = new ArrayList<>();
 
+    private SharedPreferences mSettings;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -98,74 +101,64 @@ public class TestingActivity extends AppCompatActivity {
         //Текст сверху: Номер вопроса + " из " + Количество вопросов
         nameTextView = findViewById(R.id.nameTextView);
         //nameTextView.setText("Вопрос: "+ currentQuestionRandom + 1 + " из " + questionsCount);
+
         //Инициализируем кнопку "Принять"
         acceptButton = findViewById(R.id.acceptButton);
 
         userId = intent.getStringExtra("userId");
 
-        //Задаем вопрос и ответы
-        questionList = new QuestionList();
-        //Инициализируем вопросы
-        //Заранее созданный список вопрос на случай отстуствия интернета
-        //questionList.setOfflineQuestions();
-
-        //sendQuestions();
-
-        getCloudQuestions();
-
-        if (questionList.getQuestionsCount() == 1){
-            acceptButton.setText("Закончить тестирование");
-        }
-
-
         //Сохраненное состояние пустое - значит Activity создается в первый раз
         if (savedInstanceState == null) {
-
-           /* //Формируем список IDs вопросов
-            for (int i = 0; i < questionList.getQuestionsCount(); i++){
-                //randomOrderQuestions.add(i);
-            }*/
-            //Распологаем в случайном порядке
-            questionList.shuffleQuestions();
-            //Collections.shuffle(randomOrderQuestions);
+            questionList = new QuestionList();
+            getCloudQuestions();
             isStateRestored = false;
             }
         else {
             result = savedInstanceState.getInt("result");
-            questionList.setCurrentQuestionNum(savedInstanceState.getInt("currentQuestion"));
-            //currentQuestionRandom = savedInstanceState.getInt("currentQuestionRandom");
-            //randomOrderQuestions = savedInstanceState.getIntegerArrayList("randomOrderQuestions");
+
             savedAnswersArray = savedInstanceState.getStringArrayList("savedAnswersArray");
-            isStateRestored = true;
             checkedRadioButtonId = savedInstanceState.getInt("checkedRadioButtonId");
             problemTopicList = savedInstanceState.getStringArrayList("problemTopicList");
+
+
+            Gson gson = new Gson();
+            String json = savedInstanceState.getString("questionList", "");
+            questionList = gson.fromJson(json, QuestionList.class);
+
+
+            isStateRestored = true;
+            getQuestion();
+            setObjectsVisibility();
+
+            //questionList.setCurrentQuestionNum(savedInstanceState.getInt("currentQuestion"));
+            //currentQuestionRandom = savedInstanceState.getInt("currentQuestionRandom");
+            //randomOrderQuestions = savedInstanceState.getIntegerArrayList("randomOrderQuestions");
+
             }
 
-       // isStateRestored = savedInstanceState.getBoolean("isStateRestored");
-
-            //Загружаем вопрос
-        //getQuestion();
-
+        //Если вопрос всего один
+        if (questionList.getQuestionsCount() == 1){
+            acceptButton.setText("Закончить тестирование");
+        }
 
     }
 
     //Сохраняем дополнительные данные формы, чтобы они не терялись при автоповороте или сворачивании на длительное время
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+
         savedInstanceState.putInt("result", result);
         savedInstanceState.putInt("currentQuestion", questionList.getCurrentQuestionNum());
-        //savedInstanceState.putInt("currentQuestionRandom", currentQuestionRandom);
-        //savedInstanceState.putIntegerArrayList("randomOrderQuestions", randomOrderQuestions);
-
         savedInstanceState.putStringArrayList("savedAnswersArray", answersArray);
-
         savedInstanceState.putStringArrayList("problemTopicList", problemTopicList);
-
         savedInstanceState.putInt("checkedRadioButtonId", answersGroup.getCheckedRadioButtonId());
 
+        //savedInstanceState.putSerializable("questionList", questionList);
+        Gson gson = new Gson();
+        String json = gson.toJson(questionList);
+        savedInstanceState.putString("questionList",json);
 
-
-        super.onSaveInstanceState(savedInstanceState);
     }
 
     //Обработка нажания кнопки "Назад"
@@ -308,7 +301,7 @@ public class TestingActivity extends AppCompatActivity {
 
         //Инициализируем настройки
         String APP_PREFERENCES = "settings";
-        SharedPreferences mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+        mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
         //Подсказка о нескольких вариантах ответа будет показываться всего один раз
         if (mSettings.getBoolean("APP_PREFERENCES_HINT_MULTIPLE",true) && questionList.getRightAnswersNum() > 1) {
             CardView hindCard = findViewById(R.id.hintCardView);
@@ -343,8 +336,11 @@ public class TestingActivity extends AppCompatActivity {
             //Правильные ответы
             ArrayList<String> rightAnswers = questionList.getRightAnswers();
 
+            String checkedButtonText = checkedRadioButton.getText().toString();
+            String rightAnswerText = rightAnswers.get(0);
+
             //Прибавляем к результату 1 балл
-            if (checkedRadioButton.getText() == rightAnswers.get(0))
+            if (checkedButtonText.equals(rightAnswerText))
                 result++;
             //Отмечаем проблемную тему
             else if (!questionList.getQuestionTopic().equals("Вне правил"))
@@ -382,11 +378,11 @@ public class TestingActivity extends AppCompatActivity {
                 //CheckBox для проверки
                 CheckBox checkBox = findViewById(i);
                  for (int j = 0; j < rightAnswersNumber; j++)
-                     if(checkBox.getText() == rightAnswers.get(j) && checkBox.isChecked())
+                     if(checkBox.getText().equals(rightAnswers.get(j)) && checkBox.isChecked())
                         selectedRightNumber++;
 
                 for (int k = 0; k < wrongAnswersNumber; k++)
-                    if(checkBox.getText() == wrongAnswers.get(k) && checkBox.isChecked())
+                    if(checkBox.getText().equals(wrongAnswers.get(k)) && checkBox.isChecked())
                         selectedWrongNumber++;
                  }
             //Прибавляем 1 балл, если выбраны правильные и не выбраны неправильные
@@ -496,7 +492,6 @@ public class TestingActivity extends AppCompatActivity {
         });*/
        addSnapshotListener();
         //readRDData();
-        acceptButton.setVisibility(View.VISIBLE);
        //readSlow();
 
     }
@@ -613,7 +608,7 @@ public class TestingActivity extends AppCompatActivity {
     //Загружаем вопросы из облака
     private void addSnapshotListener(){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("questions")
+        db.collection("questions_short")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value,
@@ -631,23 +626,35 @@ public class TestingActivity extends AppCompatActivity {
                         }
                         //Загружаем offline вопросы
                         if (questionList.isEmpty()){
-                            questionList.setOfflineQuestions();
+                            //questionList.setOfflineQuestions();
                         }
                         questionList.shuffleQuestions();
                         getQuestion();
 
-                        ProgressBar progressBar = findViewById(R.id.progressBar);
-                        progressBar.setVisibility(View.GONE);
-
-                        TextView questionText = findViewById(R.id.questionText);
-                        questionText.setVisibility(View.VISIBLE);
-
-                        View divider = findViewById(R.id.divider);
-                        divider.setVisibility(View.VISIBLE);
+                        setObjectsVisibility();
                     }
                         //Log.d(TAG,"Current cites in CA: ");
                 });
 }
+
+    //Делаем текстовые поля и кнопку "Далее" видимыми
+    private void setObjectsVisibility() {
+        ProgressBar progressBar = findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.GONE);
+
+        TextView questionText = findViewById(R.id.questionText);
+        questionText.setVisibility(View.VISIBLE);
+
+        View divider = findViewById(R.id.divider);
+        divider.setVisibility(View.VISIBLE);
+
+        acceptButton.setVisibility(View.VISIBLE);
+
+        //Смена названия кнопки перед последним вопросом
+        if (questionList.getCurrentQuestionNum() + 1 == questionList.getQuestionsCount()){
+            acceptButton.setText("Закончить тестирование");
+        }
+    }
 
     private void sendCloud() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
