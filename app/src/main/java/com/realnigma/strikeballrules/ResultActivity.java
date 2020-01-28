@@ -65,7 +65,7 @@ public class ResultActivity extends AppCompatActivity {
 
 
         //Если есть неправильные ответы - выводим список тем для повторения
-        if (result < questionsCount && !problemTopicList.isEmpty()) {
+        if (result < questionsCount && problemTopicList != null && !problemTopicList.isEmpty()) {
             resultSB.append("\n" + "\n" + "Рекомендуем повторить следующие разделы правил: " + "\n");
             for (int i = 0; i < problemTopicList.size(); i++) {
                 resultSB.append("\n").append(" • ").append(problemTopicList.get(i));

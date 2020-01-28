@@ -1,7 +1,5 @@
 package com.realnigma.strikeballrules;
 
-import android.os.Parcelable;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,9 +9,6 @@ class QuestionList implements Serializable {
 
     //Номер текущего вопроса
     private int currentQuestion = 0;
-
-    //Массив IDs вопросов, которые будут расположены в случайном порядке
-    private  ArrayList<Integer> randomOrderQuestions = new ArrayList<>();
 
     //Динамический массив объектов с вопросами
     private ArrayList<Question> questions = new ArrayList<>();
@@ -86,9 +81,9 @@ class QuestionList implements Serializable {
         return currentQuestion;
     }
 
-    void setCurrentQuestionNum(int currentQuestion){
-        this.currentQuestion = currentQuestion;
-    }
+//    void setCurrentQuestionNum(int currentQuestion){
+//        this.currentQuestion = currentQuestion;
+//    }
 
     //Добавить новый вопрос
     void addQuestion(Question question){

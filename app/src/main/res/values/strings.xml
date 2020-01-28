@@ -16,6 +16,7 @@
     <string name="hint_title">Подсказка</string>
     <string name="hint_text">Правильных вариантов ответа может быть несколько.</string>
     <string name="dismiss">Скрыть</string>
+    <string name="logo_description">Изображение на главном экране</string>
 
 
 </resources>

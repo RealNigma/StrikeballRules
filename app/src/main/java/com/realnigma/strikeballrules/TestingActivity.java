@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -83,8 +84,6 @@ public class TestingActivity extends AppCompatActivity {
     private ArrayList<String> answersArray = new ArrayList<>();
 
     private ArrayList<String> savedAnswersArray = new ArrayList<>();
-
-    private SharedPreferences mSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,7 +144,7 @@ public class TestingActivity extends AppCompatActivity {
 
     //Сохраняем дополнительные данные формы, чтобы они не терялись при автоповороте или сворачивании на длительное время
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
+    public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
 
         savedInstanceState.putInt("result", result);
@@ -301,7 +300,7 @@ public class TestingActivity extends AppCompatActivity {
 
         //Инициализируем настройки
         String APP_PREFERENCES = "settings";
-        mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+        SharedPreferences mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
         //Подсказка о нескольких вариантах ответа будет показываться всего один раз
         if (mSettings.getBoolean("APP_PREFERENCES_HINT_MULTIPLE",true) && questionList.getRightAnswersNum() > 1) {
             CardView hindCard = findViewById(R.id.hintCardView);
@@ -625,9 +624,9 @@ public class TestingActivity extends AppCompatActivity {
                             }
                         }
                         //Загружаем offline вопросы
-                        if (questionList.isEmpty()){
+                       // if (questionList.isEmpty()){
                             //questionList.setOfflineQuestions();
-                        }
+                       // }
                         questionList.shuffleQuestions();
                         getQuestion();
 
