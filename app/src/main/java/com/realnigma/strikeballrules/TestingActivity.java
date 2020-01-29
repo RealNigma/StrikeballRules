@@ -472,26 +472,36 @@ public class TestingActivity extends AppCompatActivity {
     }
 
 
+    //Получаем вопросы из облака
     private void getCloudQuestions (){
-        /*Task<Integer> task = getCount(db.collection("questions_short"));
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("questions")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Log.w(TAG, "Listen failed.", e);
+                            return;
+                        }
 
-        task.addOnSuccessListener(new OnSuccessListener<Integer>() {
-            @Override
-            public void onSuccess(Integer i) {
-                cloudQuestions.setQuestionsCount(i);
-                cloudQuestions.initQuestions();
-            }
-        }); */
+                        if (value != null) {
+                            for (QueryDocumentSnapshot doc : value) {
+                                Question question = doc.toObject(Question.class);
+                                questionList.addQuestion(question);
+                            }
+                        }
+                        //Загружаем offline вопросы
+                        // if (questionList.isEmpty()){
+                        //questionList.setOfflineQuestions();
+                        // }
+                        questionList.shuffleQuestions();
+                        getQuestion();
 
-       /*readData(new FirestoreCallback() {
-            @Override
-            public void onCallback(QuestionList list) {
-                getQuestion();
-            }
-        });*/
-       addSnapshotListener();
-        //readRDData();
-       //readSlow();
+                        setObjectsVisibility();
+                    }
+                    //Log.d(TAG," ");
+                });
 
     }
 
@@ -604,38 +614,6 @@ public class TestingActivity extends AppCompatActivity {
         }
     }*/
 
-    //Загружаем вопросы из облака
-    private void addSnapshotListener(){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("questions_short")
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot value,
-                                        @Nullable FirebaseFirestoreException e) {
-                        if (e != null) {
-                            Log.w(TAG, "Listen failed.", e);
-                            return;
-                        }
-
-                        if (value != null) {
-                            for (QueryDocumentSnapshot doc : value) {
-                                Question question = doc.toObject(Question.class);
-                                questionList.addQuestion(question);
-                            }
-                        }
-                        //Загружаем offline вопросы
-                       // if (questionList.isEmpty()){
-                            //questionList.setOfflineQuestions();
-                       // }
-                        questionList.shuffleQuestions();
-                        getQuestion();
-
-                        setObjectsVisibility();
-                    }
-                        //Log.d(TAG,"Current cites in CA: ");
-                });
-}
-
     //Делаем текстовые поля и кнопку "Далее" видимыми
     private void setObjectsVisibility() {
         ProgressBar progressBar = findViewById(R.id.progressBar);
@@ -655,6 +633,7 @@ public class TestingActivity extends AppCompatActivity {
         }
     }
 
+    //Отправляем результаты тестирования в облако
     private void sendCloud() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
