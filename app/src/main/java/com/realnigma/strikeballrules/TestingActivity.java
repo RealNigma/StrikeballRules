@@ -153,7 +153,6 @@ public class TestingActivity extends AppCompatActivity {
         savedInstanceState.putStringArrayList("problemTopicList", problemTopicList);
         savedInstanceState.putInt("checkedRadioButtonId", answersGroup.getCheckedRadioButtonId());
 
-        //savedInstanceState.putSerializable("questionList", questionList);
         Gson gson = new Gson();
         String json = gson.toJson(questionList);
         savedInstanceState.putString("questionList",json);
