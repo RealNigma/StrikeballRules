@@ -1,11 +1,10 @@
 package com.realnigma.strikeballrules;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 
 //Массив объектов класса - Список вопросов
-class QuestionList implements Serializable {
+class QuestionList {
 
     //Номер текущего вопроса
     private int currentQuestion = 0;

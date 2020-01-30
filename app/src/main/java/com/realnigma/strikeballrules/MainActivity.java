@@ -75,8 +75,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //Сохраненное состояние пустое - значит Activity создается в первый раз
-        if (savedInstanceState == null && userId == null) {
-            createSignInIntent();
+        if (savedInstanceState == null) {
+            if (userId == null){
+                createSignInIntent();
+            }
+        }
+        else
+        {
+            userId = savedInstanceState.getString("userId");
         }
         //signInAnonymously();
 
@@ -93,8 +99,17 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //Сохраняем дополнительные данные формы, чтобы они не терялись при автоповороте или сворачивании на длительное время
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
 
-    //Добавляем меню
+    savedInstanceState.putString("userId", userId);
+    }
+
+
+
+        //Добавляем меню
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
