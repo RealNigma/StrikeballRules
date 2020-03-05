@@ -17,6 +17,12 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -30,12 +36,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 
 public class TestingActivity extends AppCompatActivity {
 
@@ -129,10 +129,6 @@ public class TestingActivity extends AppCompatActivity {
             getQuestion();
             setObjectsVisibility();
 
-            //questionList.setCurrentQuestionNum(savedInstanceState.getInt("currentQuestion"));
-            //currentQuestionRandom = savedInstanceState.getInt("currentQuestionRandom");
-            //randomOrderQuestions = savedInstanceState.getIntegerArrayList("randomOrderQuestions");
-
             }
 
         //Если вопрос всего один
@@ -191,16 +187,6 @@ public class TestingActivity extends AppCompatActivity {
     }
 
     private void getQuestion() {
-
-        //acceptButton.setVisibility(View.VISIBLE);
-
-        //Анимация появления кнопки
-        //Animation anim = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
-        //acceptButton.startAnimation(anim);
-        //anim.setDuration(1200);
-
-        //Получаем номер текущего вопроса
-       // questionList.getCurrentQuestionNum();
 
         //Варианты ответов с возможностью выбрать только один вариант
         answersGroup = findViewById(R.id.RadioGroup);
@@ -309,7 +295,6 @@ public class TestingActivity extends AppCompatActivity {
             editor.apply();
         }
     }
-
 
     //Проверяем правильность ответа
     public void checkResult(View view){
@@ -438,7 +423,7 @@ public class TestingActivity extends AppCompatActivity {
         //Текст с итогами тестирования
         //String resultText;
 
-        //Вызываем активити с результатом и передаем текст результата
+        //Вызываем Activity с результатом и передаем текст результата
 
         intent.putExtra("Имя", userName);
 
@@ -462,14 +447,7 @@ public class TestingActivity extends AppCompatActivity {
         //Выгружаем activity, чтобы нельзя было использовать кнопку "Назад"
         finish();
 
-        //Анимация скрытия кнопки
-        //Animation anim = AnimationUtils.loadAnimation(this, android.R.anim.fade_out);
-        //acceptButton.startAnimation(anim);
-        //acceptButton.setVisibility(View.GONE);
-
-
     }
-
 
     //Получаем вопросы из облака
     private void getCloudQuestions (){
@@ -490,10 +468,6 @@ public class TestingActivity extends AppCompatActivity {
                                 questionList.addQuestion(question);
                             }
                         }
-                        //Загружаем offline вопросы
-                        // if (questionList.isEmpty()){
-                        //questionList.setOfflineQuestions();
-                        // }
                         questionList.shuffleQuestions();
                         getQuestion();
 
@@ -503,100 +477,6 @@ public class TestingActivity extends AppCompatActivity {
                 });
 
     }
-
-    //Полученные данных методом get()
-    /*private void readSlow(){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        db.collection("questions")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                Question question = document.toObject(Question.class);
-                                questionList.addQuestion(question);
-                                Log.d(TAG, document.getId() + " => " + document.getData());
-                            }
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                        getQuestion();
-                    }
-                });
-    }*/
-
-    //Получение данных из RealTimeDatabase
-    /* private void readRDData(){
-        DatabaseReference mDatabase;
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference questionsRef = mDatabase.child("questions_short");
-
-        ValueEventListener questionListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                    Question question = dataSnapshot.getValue(Question.class);
-                    questionList.addQuestion(question);
-                    getQuestion();
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Getting Post failed, log a message
-                Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
-                // ...
-            }
-        };
-        questionsRef.addValueEventListener(questionListener);
-
-    }*/
-
-    //Полученные данных через метод get() c использованием Callback
-   /* private void readData(final FirestoreCallback firestoreCallback){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("questions_short")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                Question question = document.toObject(Question.class);
-                                questionList.addQuestion(question);
-                                //Log.d(TAG, document.getId() + " => " + document.getData());
-                            }
-                            firestoreCallback.onCallback(questionList);
-                        } else {
-                            //Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                        //questionList = cloudQuestions;
-                        //questionList.setQuestionsCount(cloudQuestions.getQuestionsCount());
-                        //questionList.questions = cloudQuestions.questions;
-
-
-                    }
-                });
-    }
-
-    private interface FirestoreCallback {
-        void onCallback(QuestionList list);
-    } */
-
-    //Считаем количество записей в коллекции
-   /* private Task<Integer> getCount(final CollectionReference ref) {
-        return ref.get()
-                .continueWith(new Continuation<QuerySnapshot, Integer>() {
-                    @Override
-                    public Integer then(@NonNull Task<QuerySnapshot> task) throws Exception {
-                        int count = 0;
-                        for (DocumentSnapshot snap : task.getResult()) {
-                            count++;
-                        }
-                        return count;
-                    }
-                });
-    }*/
 
     //Отправляем вопросы в облако
     /*private void sendQuestions(){
@@ -635,13 +515,6 @@ public class TestingActivity extends AppCompatActivity {
     //Отправляем результаты тестирования в облако
     private void sendCloud() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        //Date time = Calendar.getInstance().getTime();
-
-        //DateFormat df = new DateFormat.getDateInstance();
-        //String formattedDate = df.format(time);
-
-        // Create a new user with a first, middle, and last name
         Map<String, Object> user = new HashMap<>();
         user.put("userName", userName);
         user.put("result", result);
@@ -650,21 +523,6 @@ public class TestingActivity extends AppCompatActivity {
 
         db.collection("users").document(userId).set(user);
        // sendQuestions();
-
-        /*db.collection("users")
-                .add(user)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        // Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        // Log.w(TAG, "Error adding document", e);
-                    }
-                });*/
     }
 
 
