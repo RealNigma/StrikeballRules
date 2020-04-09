@@ -353,7 +353,7 @@ public class TestingActivity extends AppCompatActivity {
             ArrayList<String> rightAnswers = questionList.getRightAnswers();
             ArrayList<String> wrongAnswers = questionList.getWrongAnswers();
 
-            //Количество правильно и неправльно выбранных ответов
+            //Количество правильно и неправильно выбранных ответов
             int selectedRightNumber = 0;
             int selectedWrongNumber = 0;
 
