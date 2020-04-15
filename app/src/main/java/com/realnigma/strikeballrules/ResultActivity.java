@@ -8,11 +8,11 @@ import android.view.animation.AccelerateInterpolator;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.util.ArrayList;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 public class ResultActivity extends AppCompatActivity {
 
@@ -32,7 +32,6 @@ public class ResultActivity extends AppCompatActivity {
 
         //Имя пользователя
         String userName = intent.getStringExtra("Имя");
-
 
         //Список разделов для повторения
         //Список проблемных тем вопроса при которых были даны неверные ответы
@@ -61,7 +60,6 @@ public class ResultActivity extends AppCompatActivity {
             problemTopicList.clear();
             problemTopicList.addAll(set);
         }
-
 
 
         //Если есть неправильные ответы - выводим список тем для повторения

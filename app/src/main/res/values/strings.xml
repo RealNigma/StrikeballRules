@@ -17,6 +17,10 @@
     <string name="hint_text">Правильных вариантов ответа может быть несколько.</string>
     <string name="dismiss">Скрыть</string>
     <string name="logo_description">Изображение на главном экране</string>
+    <string name="successful_exit">Вы успешно вышли из Google-аккаунта</string>
+    <string name="need_auth">Необходимо авторизоваться</string>
+    <string name="name">Имя</string>
+    <string name="anonymous">Аноним</string>
 
 
 </resources>

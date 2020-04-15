@@ -19,7 +19,7 @@ class QuestionList {
 
     //Получить текст вопроса
     String getQuestionText() {
-        if (questions.size() > 0) {
+        if (!isEmpty()) {
             return questions.get(currentQuestion).questionText;
         }
         else return null;
@@ -36,7 +36,7 @@ class QuestionList {
 
     //Получить тему вопроса
     String getQuestionTopic() {
-        if (questions.size() > 0) {
+        if (!isEmpty()) {
             return questions.get(currentQuestion).questionTopic;
         }
         else return null;
@@ -44,7 +44,7 @@ class QuestionList {
 
     //Получить число правильных ответов
     int getRightAnswersNum(){
-        if (questions.size() > 0){
+        if (!isEmpty()){
             return questions.get(currentQuestion).rightAnswers.size();
         }
         else return 0;
@@ -53,7 +53,7 @@ class QuestionList {
 
     //Получить список правильных ответов
     ArrayList<String> getRightAnswers(){
-        if (questions.size() > 0) {
+        if (!isEmpty()) {
             return questions.get(currentQuestion).rightAnswers;
         }
         else return null;
@@ -61,7 +61,7 @@ class QuestionList {
 
     //Получить список неправильных ответов
     ArrayList<String> getWrongAnswers(){
-        if (questions.size() > 0) {
+        if (!isEmpty()) {
             return questions.get(currentQuestion).wrongAnswers;
         }
         else return null;
@@ -69,7 +69,7 @@ class QuestionList {
 
     //Получить число неправильных ответов
     int getWrongAnswersNum(){
-        if (questions.size() > 0) {
+        if (!isEmpty()) {
             return questions.get(currentQuestion).wrongAnswers.size();
         }
         else return 0;

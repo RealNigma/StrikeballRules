@@ -53,15 +53,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Решение проблемы с перезапуском приложения при повторорном нажатии на иконку приложения
-        if (!isTaskRoot()
-                && getIntent().hasCategory(Intent.CATEGORY_LAUNCHER)
-                && getIntent().getAction() != null
-                && getIntent().getAction().equals(Intent.ACTION_MAIN)) {
+        //Решение проблемы с перезапуском приложения при повторном нажатии на иконку приложения
+        if (reRunProblemFix()) return;
 
-            finish();
-            return;
-        }
         //Запрещаем поворот экрана
         //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
@@ -97,6 +91,18 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private boolean reRunProblemFix() {
+        if (!isTaskRoot()
+                && getIntent().hasCategory(Intent.CATEGORY_LAUNCHER)
+                && getIntent().getAction() != null
+                && getIntent().getAction().equals(Intent.ACTION_MAIN)) {
+
+            finish();
+            return true;
+        }
+        return false;
+    }
+
     //Сохраняем дополнительные данные формы, чтобы они не терялись при автоповороте или сворачивании на длительное время
     @Override
     public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
@@ -118,7 +124,6 @@ public class MainActivity extends AppCompatActivity {
     //Действие при выборе элемента меню
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
         switch (item.getItemId()) {
             case R.id.logout:
                signOut();
@@ -184,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
                 //Действие при успешной выходе из учетной записи
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     public void onComplete(@NonNull Task<Void> task) {
-                        snackbarMessage("Вы успешно вышли из Google-аккаунта");
+                        snackbarMessage(getString(R.string.successful_exit));
                         userId = null;
                     }
                 });
@@ -197,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
         if (userId == null) {
             CoordinatorLayout coordinatorLayout = findViewById(R.id.CoordinatorLayout);
             Snackbar snackbar = Snackbar
-                    .make(coordinatorLayout,"Необходимо авторизоваться", Snackbar.LENGTH_LONG);
+                    .make(coordinatorLayout, R.string.need_auth, Snackbar.LENGTH_LONG);
             snackbar.setAction("Войти", new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -215,8 +220,8 @@ public class MainActivity extends AppCompatActivity {
         //Передаем введенное имя
         Intent intent = new Intent(".TestingActivity");
         nameText = nameEditText.getText().toString();
-        if (nameText.length() != 0) intent.putExtra("Имя",  nameText);
-        else intent.putExtra("Имя", "Аноним");
+        if (nameText.length() != 0) intent.putExtra(getString(R.string.name),  nameText);
+        else intent.putExtra("Имя", getString(R.string.anonymous));
 
         intent.putExtra("userId" , userId);
 
