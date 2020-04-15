@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
         List<AuthUI.IdpConfig> providers = Collections.singletonList(
                 new AuthUI.IdpConfig.GoogleBuilder().build());
 
-        // В списке оставлена только Google-авторизация
+        // В списке оставлена только Google-авторизацию
         startActivityForResult(
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()

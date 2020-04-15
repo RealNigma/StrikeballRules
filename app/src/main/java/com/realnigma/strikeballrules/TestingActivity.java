@@ -53,15 +53,6 @@ public class TestingActivity extends AppCompatActivity {
     //Контейнер с вариантами ответа
     private RadioGroup answersGroup;
 
-    //Номер текущего вопроса - для обращения к фиксированному списку вопросов
-    //private int currentQuestion = 0;
-
-    //Также номер текущего вопроса, но для расположения вопросов в случайном порядке
-   // private int currentQuestionRandom = 0;
-
-    //Массив IDs вопросов, которые будут расположены в случайном порядке
-   // private  ArrayList<Integer> randomOrderQuestions = new ArrayList<>();
-
     //Результат
     private int result;
 
