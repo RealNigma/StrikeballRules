@@ -232,7 +232,7 @@ public class TestingActivity extends AppCompatActivity {
 
         //В засимости от количества правильных ответов размещаем либо CheckBoxes, либо RadioButtons
 
-        if (questionList.getRightAnswersNum() > 1) {
+        if (rightAnswersNumber > 1) {
             for (int i = 0; i < answersNumber; i++){
                 //Объявляем все элементы массива
                 checkBoxes[i] = new CheckBox(this);
@@ -247,7 +247,7 @@ public class TestingActivity extends AppCompatActivity {
             }
         }
 
-        if (questionList.getRightAnswersNum() == 1){
+        if (rightAnswersNumber == 1){
             for (int i = 0; i < answersNumber; i++){
                 //Объявляем все элементы массива
                 radioButtons[i] = new RadioButton(this);
@@ -298,6 +298,8 @@ public class TestingActivity extends AppCompatActivity {
         //Сброс значения переменной при смене вопроса
         isStateRestored = false;
 
+        int rightAnswersNumber = questionList.getRightAnswersNum();
+
         //Варианты ответа RadioButton
 
 
@@ -323,8 +325,7 @@ public class TestingActivity extends AppCompatActivity {
             }
 
         //Если ни один из RadioButtons, то записываем проблемную тему
-        if (answersGroup.getCheckedRadioButtonId() == -1 &&
-                questionList.getRightAnswersNum() == 1)
+        if (answersGroup.getCheckedRadioButtonId() == -1 && rightAnswersNumber == 1)
 
             if (questionList.getQuestionTopic() != null && !questionList.getQuestionTopic().equals("Вне правил"))
                 problemTopicList.add(questionList.getQuestionTopic());
@@ -333,11 +334,10 @@ public class TestingActivity extends AppCompatActivity {
         //Варианты ответа CheckBoxes
 
         //Если количество правильных ответов больше 1
-        if (questionList.getRightAnswersNum() > 1) {
+        if (rightAnswersNumber > 1) {
 
             //Число вариантов ответа
             int wrongAnswersNumber = questionList.getWrongAnswersNum();
-            int rightAnswersNumber = questionList.getRightAnswersNum();
             int answersNumber = wrongAnswersNumber + rightAnswersNumber;
 
             //Правильные и неправильные ответы
